@@ -20,13 +20,6 @@ namespace Timesheet.CommandInterface
             _miscHandlers = miscHandlers;
         }
 
-        private Command Rematch()
-        {
-            var c = new Command("rematch", "will re-match entries to timespans");
-            c.Handler = CommandHandler.Create(async () => await _miscHandlers.Rematch());
-            return c;
-        }
-
         private Command Import()
         {
             var c = new Command("import", "imports a file")
@@ -125,7 +118,6 @@ namespace Timesheet.CommandInterface
             var root = new RootCommand("a simple utility to keep a timesheet from the cli")
             {
                 _summaryCommandFactory.Create(),
-                Rematch(),
                 Import(),
                 Export(),
                 Add(),

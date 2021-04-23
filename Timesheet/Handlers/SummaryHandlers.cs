@@ -3,6 +3,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Timesheet.DataAccess;
+using Timesheet.ErrorHandling;
 using Timesheet.TablePrinter;
 
 namespace Timesheet.Handlers
@@ -81,49 +82,73 @@ namespace Timesheet.Handlers
 
         public async Task All()
         {
-            var expected = await _summaryRepository.GetExpectedHoursAll();
-            var actual = await _summaryRepository.GetActualHoursAll();
+            try
+            {
+                var expected = await _summaryRepository.GetExpectedHoursAll();
+                var actual = await _summaryRepository.GetActualHoursAll();
             
-            var table = new DataTable("Summary All");
-            table.Columns.Add("Expected", typeof(string));
-            table.Columns.Add("Actual", typeof(string));
-            table.Columns.Add("Balance", typeof(string));
-            table.Rows.Add(expected.PrettyTimespan(), actual.PrettyTimespan(), (actual - expected).PrettyTimespan());
-            Console.WriteLine(table.ToPrettyPrintedString());
+                var table = new DataTable("Summary All");
+                table.Columns.Add("Expected", typeof(string));
+                table.Columns.Add("Actual", typeof(string));
+                table.Columns.Add("Balance", typeof(string));
+                table.Rows.Add(expected.PrettyTimespan(), actual.PrettyTimespan(), (actual - expected).PrettyTimespan());
+                Console.WriteLine(table.ToPrettyPrintedString());
+            }
+            catch (Error e)
+            {
+                e.Print();
+            }
         }
         
         public async Task Year()
         {
-            var expected = await _summaryRepository.GetExpectedHoursYear();
-            var actual = await _summaryRepository.GetActualHoursYear();
-            
-            var table = new DataTable("Summary Year");
-            table.Columns.Add("Year", typeof(string));
-            table.Columns.Add("Expected", typeof(string));
-            table.Columns.Add("Actual", typeof(string));
-            table.Columns.Add("Balance", typeof(string));
-            foreach (var year in expected.Keys.OrderBy(x => x))
+            try
             {
-                var e = expected[year];
-                var a = actual[year];
-                table.Rows.Add(year.ToString(), e.PrettyTimespan(), a.PrettyTimespan(), (a - e).PrettyTimespan());
+                var expected = await _summaryRepository.GetExpectedHoursYear();
+                var actual = await _summaryRepository.GetActualHoursYear();
+            
+                var table = new DataTable("Summary Year");
+                table.Columns.Add("Year", typeof(string));
+                table.Columns.Add("Expected", typeof(string));
+                table.Columns.Add("Actual", typeof(string));
+                table.Columns.Add("Balance", typeof(string));
+                foreach (var year in expected.Keys.OrderBy(x => x))
+                {
+                    var e = expected[year];
+                    var a = actual[year];
+                    table.Rows.Add(year.ToString(), e.PrettyTimespan(), a.PrettyTimespan(), (a - e).PrettyTimespan());
+                }
+                Console.WriteLine(table.ToPrettyPrintedString());
+
             }
-            Console.WriteLine(table.ToPrettyPrintedString());
+            catch (Error e)
+            {
+                e.Print();
+            }
         }
 
         public async Task Day()
         {
-            var days = await _summaryRepository.GetActualHoursDay();
-            
-
-            var table = new DataTable("Summary Day");
-            table.Columns.Add("Day", typeof(string));
-            table.Columns.Add("Hours", typeof(string));
-            foreach (var day in days.OrderBy(x => x.Key))
+            try
             {
-                table.Rows.Add(day.Key, day.Value.PrettyTimespan());
+                var actual = await _summaryRepository.GetActualHoursDay();
+                var expected = await _summaryRepository.GetExpectedHoursDay();
+
+                var table = new DataTable("Summary Day");
+                table.Columns.Add("Day", typeof(string));
+                table.Columns.Add("Hours", typeof(string));
+                table.Columns.Add("Expected", typeof(string));
+                foreach (var day in actual.OrderBy(x => x.Key).Select(x => x.Key))
+                {
+                    table.Rows.Add(day, actual[day].PrettyTimespan(), expected[day].PrettyTimespan());
+                }
+                Console.WriteLine(table.ToPrettyPrintedString());
+
             }
-            Console.WriteLine(table.ToPrettyPrintedString());
+            catch (Error e)
+            {
+                e.Print();
+            }
         }
     }
 }

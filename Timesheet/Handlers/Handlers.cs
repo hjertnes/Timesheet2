@@ -6,7 +6,6 @@ namespace Timesheet.Handlers
     {
         Task Export(string filename);
         Task Import(string filename, bool dry);
-        Task Rematch();
     }
 
     public class MiscHandlers : IMiscHandlers
@@ -17,11 +16,6 @@ namespace Timesheet.Handlers
         }
 
         public Task Import(string filename, bool dry)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task Rematch()
         {
             throw new System.NotImplementedException();
         }

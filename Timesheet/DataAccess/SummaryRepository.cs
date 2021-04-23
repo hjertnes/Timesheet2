@@ -13,6 +13,7 @@ namespace Timesheet.DataAccess
         Task<TimeSpan> GetActualHoursAll();
         Task<Dictionary<int, TimeSpan>> GetExpectedHoursYear();
         Task<Dictionary<int, TimeSpan>> GetActualHoursYear();
+        Task<Dictionary<string, TimeSpan>> GetExpectedHoursDay();
         Task<Dictionary<string, TimeSpan>> GetActualHoursDay();
     }
     
@@ -84,8 +85,27 @@ namespace Timesheet.DataAccess
                     .Where(x => x.Start.ToString("yyyy-MM-dd") == day)
                     
                     .Select(x =>
-                        (x.Excluded || x.Off) ? x.End - x.Start : (x.End - x.Start) - SettingsProvider.GetBreakTime())
+                        (x.Excluded || x.Off) ? x.End - x.Start : (x.End - x.Start))
                     .Aggregate((x, y) => x + y);
+                if (_context.Entries.Where(x => x.Excluded == false && x.Off == false).ToList()
+                    .Any(x => x.Start.ToString("yyyy-MM-dd") == day))
+                {
+                    result[day] = result[day] - SettingsProvider.GetBreakTime();
+                }
+            }
+
+            return result;
+        }
+        
+        public async Task<Dictionary<string, TimeSpan>> GetExpectedHoursDay()
+        {
+            var result = new Dictionary<string, TimeSpan>();
+            var days = await _context.Entries.Select(x => x.Start.ToString("yyyy-MM-dd")).Distinct().ToListAsync();
+            foreach (var day in days)
+            {
+                result[day] = _context.Entries.Any(x => x.Excluded)
+                    ? TimeSpan.FromMinutes(0)
+                    : SettingsProvider.GetWorkDay();
             }
 
             return result;

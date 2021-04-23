@@ -30,12 +30,7 @@ namespace Timesheet.DataAccess
             var entry = await _context.Entries.FirstOrDefaultAsync(x => x.EntryId == id);
             if (entry == null)
             {
-                throw new Error
-                {
-                    ErrorType = ErrorType.NotFound,
-                    Title = "Entry not found",
-                    Detail = $"Could not find an entry with ID='{id}'",
-                };
+                throw ErrorFactory.Create(ErrorType.NotFound, "Entry not found", $"Could not find an entry with ID='{id}'");
             }
 
             return entry;
@@ -48,14 +43,14 @@ namespace Timesheet.DataAccess
 
         public async Task Add(DateTime start, DateTime end, bool excluded, bool off)
         {
+            if (start > end)
+            {
+                throw ErrorFactory.Create(ErrorType.InvalidInput, "Entry end is before start",
+                    "You have probably mixed up start and end");
+            }
             if (await _context.Entries.AnyAsync(x => x.Start >= start && x.End <= end))
             {
-                throw new Error
-                {
-                    ErrorType = ErrorType.Overlap,
-                    Title = "Entry overlaps",
-                    Detail = $"The start and end overlaps with existing entry or entries",
-                };
+                throw ErrorFactory.Create(ErrorType.Overlap, "Entry overlaps", "The start and end overlaps with existing entry or entries");
             }
 
             var e = new Entry

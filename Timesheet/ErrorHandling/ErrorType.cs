@@ -6,5 +6,6 @@ namespace Timesheet.ErrorHandling
         NotFound = 1,
         NotEmpty = 2,
         Overlap = 3,
+        InvalidInput = 4,
     }
 }

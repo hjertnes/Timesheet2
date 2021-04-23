@@ -13,11 +13,9 @@ namespace Timesheet.ErrorHandling
         public void Print()
         {
             Console.WriteLine("Shit hit the fan");
-            DataTable table = new DataTable("Error Details");
-            table.Rows.Add("Title", Title);
-            table.Rows.Add("Detail", Detail);
-            table.Rows.Add("Type", ErrorType.ToString());
-            Console.WriteLine(table.ToPrettyPrintedString());
+            Console.WriteLine("Error Details");
+            Console.WriteLine($"Title: {Title}");
+            Console.WriteLine($"Detail: {Detail}");
         }
     }
 }
