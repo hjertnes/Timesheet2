@@ -28,10 +28,10 @@ namespace Timesheet.CommandInterface
                 {
                     Description = "the filename of the file you want to import"
                 },
-                new Option<bool>("--dry", "parses and does everything except saving it to the database")
+                new Option<bool>("--write", "writes the changes instead of just printing them")
             };
 		    
-            c.Handler = CommandHandler.Create(async (string filename, bool dry) => await _miscHandlers.Import(filename, dry));
+            c.Handler = CommandHandler.Create(async (string filename, bool write) => await _miscHandlers.Import(filename, write));
 
             return c;
         }
